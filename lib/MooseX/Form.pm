@@ -106,6 +106,8 @@ sub form {
 		
 		$field{name} = $_->name;
 		
+		my $name = $field{name};
+		
 		if (defined $form{session}) {
 			$form{session}->{fields}->{$_->name} = {};
 			$field{session} = $form{session}->{fields}->{$_->name};
@@ -118,6 +120,9 @@ sub form {
 			$field{param_value} = $p{$_} if $_ eq $field_param;
 		}
 
+		# TODO: be flexible about the reader, i'm lazy now
+		$field{attribute_value} = $self->$name() if $self->can($name);
+		
 		$field{def} = $_;
 		
 		push @{$form{field_definitions}}, \%field;

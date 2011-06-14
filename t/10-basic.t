@@ -31,7 +31,8 @@ use Test::More;
 
 }
 
-my $form = Bigger->new;
+my $desc_testvalue = 'No description given';
+my $form = Bigger->new( desc => $desc_testvalue );
 
 isa_ok($form,'Bigger');
 is($form->form_param,'bigger','Auto form_param is set proper');
@@ -55,8 +56,11 @@ my $form_result = $form->form({
 ok($form_result->submitted,'Form is submitted');
 ok($form_result->valid,'Form is valid');
 
-is_deeply($session->{form_bigger}->{fields}->{name},{},"desc field of form has proper sesssion content");
+is_deeply($session->{form_bigger}->{fields}->{name},{},"name field of form has proper sesssion content");
 is_deeply($session->{form_bigger}->{fields}->{desc},{},"desc field of form has proper sesssion content");
-is_deeply($session->{form_bigger}->{fields}->{score},{},"desc field of form has proper sesssion content");
+is_deeply($session->{form_bigger}->{fields}->{score},{},"score field of form has proper sesssion content");
+
+is($form_result->get_field('name')->form,$form_result,'field reference to proper form result');
+is($form_result->get_field('desc')->attribute_value,$desc_testvalue,"attribute value reached field");
 
 done_testing;

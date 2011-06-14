@@ -76,7 +76,7 @@ sub _build_fields {
 	my @fields;
 	for (@{$self->field_definitions}) {
 		my $result_field_class = with_traits($self->def->form_result_field_class,@{$self->def->form_result_field_traits},@{$_->{def}->form_result_field_traits});
-		push @fields, $result_field_class->new($_);
+		push @fields, $result_field_class->new(%{$_}, form => $self);
 	}
 	return \@fields;
 }

@@ -13,7 +13,7 @@ has name => (
 has form => (
 	is => 'ro',
 	isa => 'MooseX::Form::Result',
-#	required => 1,
+	required => 1,
 );
 
 has def => (
