@@ -55,4 +55,8 @@ my $form_result = $form->form({
 ok($form_result->submitted,'Form is submitted');
 ok($form_result->valid,'Form is valid');
 
+is_deeply($session->{form_bigger}->{fields}->{name},{},"desc field of form has proper sesssion content");
+is_deeply($session->{form_bigger}->{fields}->{desc},{},"desc field of form has proper sesssion content");
+is_deeply($session->{form_bigger}->{fields}->{score},{},"desc field of form has proper sesssion content");
+
 done_testing;

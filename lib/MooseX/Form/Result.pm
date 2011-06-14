@@ -3,6 +3,7 @@ package MooseX::Form::Result;
 
 use Moose::Role;
 use MooseX::Form::TypeConstraints;
+use Moose::Util qw/with_traits/;
 
 has name => (
 	is => 'ro',
@@ -41,9 +42,22 @@ has param_value => (
 	predicate => 'has_param_value',
 );
 
+has session => (
+	is => 'ro',
+	isa => 'HashRef',
+	predicate => 'has_session',
+);
+
 has def => (
 	is => 'ro',
 	isa => 'MooseX::Form',
+	required => 1,
+);
+
+has field_definitions => (
+	traits  => ['Array'],
+	is      => 'ro',
+	isa     => 'ArrayRef[HashRef]',
 	required => 1,
 );
 
@@ -51,11 +65,21 @@ has fields => (
 	traits  => ['Array'],
 	is      => 'ro',
 	isa     => 'ArrayRef[MooseX::Form::Result::Field]',
-	required => 1,
+	lazy_build => 1,
 	handles => {
 		count_fields => 'count',
 	},
 );
+
+sub _build_fields {
+	my ( $self ) = @_;
+	my @fields;
+	for (@{$self->field_definitions}) {
+		my $result_field_class = with_traits($self->def->form_result_field_class,@{$self->def->form_result_field_traits},@{$_->{def}->form_result_field_traits});
+		push @fields, $result_field_class->new($_);
+	}
+	return \@fields;
+}
 
 sub get_field {
 	my ( $self, $name ) = @_;

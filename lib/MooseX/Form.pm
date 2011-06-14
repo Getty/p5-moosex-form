@@ -77,45 +77,54 @@ sub param_join_string { '_' }
 has form_result_traits => (
 	is => 'ro',
 	isa => 'ArrayRef[Str]',
-	default => sub {[qw/MooseX::Form::Result/]},
+	default => sub {['MooseX::Form::Result']},
 );
 
 sub form {
 	my $self = shift;
+	
 	my %args = ref $_[0] ne 'HASH' ? @_ : %{$_[0]};
 	my %p = %{$args{params}};
-	my $s = $args{session}->{"form_".$self->form_param};
-
+	
 	my %form;
 	
-	$form{def} = $self;
 	$form{name} = $self->form_param;
 
+	if ($args{session}) {
+		$args{session}->{"form_".$self->form_param} = {
+			fields => {},
+		} if (!defined $args{session}->{"form_".$self->form_param});
+		$form{session} = $args{session}->{"form_".$self->form_param};
+	}
+
 	$form{param_value} = $p{$form{name}} if defined $p{$form{name}};
-	
-	my @result_fields;
+	$form{def} = $self;
 	
 	for (@{$self->form_fields}) {
 
 		my %field;
 		
-		$field{def} = $_;
 		$field{name} = $_->name;
-	
+		
+		if (defined $form{session}) {
+			$form{session}->{fields}->{$_->name} = {};
+			$field{session} = $form{session}->{fields}->{$_->name};
+		}
+
 		my $field_param = $self->form_param.$self->param_join_string.$_->name;
 		my $field_param_prefix = $self->form_param.$self->param_join_string.$_->name.$self->param_join_string;
 		for (keys %p) {
 			$field{param_values}->{$1} = $p{$_} if $_ =~ /^$field_param_prefix(.*)/;
 			$field{param_value} = $p{$_} if $_ eq $field_param;
 		}
-	
-		my $result_field_class = with_traits($self->form_result_field_class,@{$self->form_result_field_traits},@{$_->form_result_field_traits});
-		my $result_field = $result_field_class->new(\%field);
-		push @{$form{fields}}, $result_field;
+
+		$field{def} = $_;
+		
+		push @{$form{field_definitions}}, \%field;
 	}
 
 	my $result_class = with_traits($self->form_result_class,@{$self->form_result_traits});
-	
+
 	return $result_class->new(\%form);
 }
 

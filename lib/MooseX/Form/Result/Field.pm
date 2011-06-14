@@ -32,6 +32,12 @@ has attribute_value => (
 	predicate => 'has_attribute_value',
 );
 
+has session => (
+	is => 'ro',
+	isa => 'HashRef',
+	predicate => 'has_session',
+);
+
 has param_value => (
 	is => 'ro',
 	isa => 'Str',
